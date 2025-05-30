@@ -1,106 +1,148 @@
 <script setup lang="ts">
-import Sidebar from './components/Sidebar.vue'
-import Header from './components/Header.vue'
-import ReconnectCard from './components/ReconnectCard.vue'
-import BusinessSummaryCard from './components/BusinessSummaryCard.vue'
-import StatCard from './components/StatCard.vue'
-import DateRangePicker from './components/DateRangePicker.vue'
-import EditTitlesDialog from './components/EditTitlesDialog.vue'
-import AccountSelectDialog from './components/AccountSelectDialog.vue'
+import { ref, type Ref } from 'vue'
+import { Button } from './components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
+import { RangeCalendar } from './components/ui/range-calendar'
+import { getLocalTimeZone, today } from '@internationalized/date'
+import { ScrollArea } from './components/ui/scroll-area'
+import { Separator } from './components/ui/separator'
+
+interface DateRange {
+  start: any;
+  end: any;
+}
+
+const start = today(getLocalTimeZone())
+const end = start.add({ days: 14 })
+
+const dateRange = ref({
+  start,
+  end,
+}) as Ref<DateRange>
+
+const metrics = {
+  businessPerformance: [
+    { title: 'Tracked Revenue', value: '$45,231.89', change: '+12.55%' },
+    { title: 'Mis-reported revenue', value: '$45,231.89', change: '+12.55%' },
+    { title: 'Mis-reported ad spend', value: '$45,231.89', change: '+12.55%' },
+    { title: 'Enriched customer events', value: '573', change: '+12.55%' },
+  ],
+  websiteAnalytics: [
+    { title: 'Visitors', value: '5,231', change: '+12.55%' },
+    { title: 'Ad interaction', value: '231', change: '+12.55%' },
+    { title: 'Email interaction', value: '45', change: '+12.55%' },
+    { title: 'Influencer interaction', value: '73', change: '+12.55%' },
+  ],
+  returningCustomers: [
+    { title: 'Order from Facebook ads', value: '51', change: '+12.55%' },
+    { title: 'Order value from Facebook ads', value: '$431.89', change: '+12.55%' },
+    { title: 'Order from Google ads', value: '145', change: '+12.55%' },
+    { title: 'Order value from Google ads', value: '$1,434.89', change: '+12.55%' },
+  ]
+}
 </script>
 
 <template>
-  <div class="flex h-screen bg-background">
-    <Sidebar />
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <Header title="Home" />
-      <main class="flex-1 overflow-auto p-6">
-        <ReconnectCard />
-        
-        <BusinessSummaryCard title="Summary" dateRange="Jan 20, 2023 - Feb 09, 2023">
-          <StatCard title="Tracked Revenue" value="$45,231.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="Mix-reported revenue" value="$45,231.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="Mix-reported revenue" value="$45,231.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="Enriched customer events" value="573" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </template>
-          </StatCard>
-        </BusinessSummaryCard>
-        
-        <BusinessSummaryCard title="Business Performance Summary">
-          <StatCard title="Total Sales" value="$45,231.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="14" x="2" y="5" rx="2" />
-                <line x1="2" x2="22" y1="10" y2="10" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="Orders" value="231" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="14" x="2" y="5" rx="2" />
-                <line x1="2" x2="22" y1="10" y2="10" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="Spend" value="$5,231.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </template>
-          </StatCard>
-          
-          <StatCard title="AOV" value="$31.89" :percentage="12.56">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="14" x="2" y="5" rx="2" />
-                <line x1="2" x2="22" y1="10" y2="10" />
-              </svg>
-            </template>
-          </StatCard>
-        </BusinessSummaryCard>
-        
-        <!-- Uncomment these to show the dialogs -->
-        <!-- <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <DateRangePicker />
-        </div> -->
-        
-        <!-- <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <EditTitlesDialog />
-        </div> -->
-        
-        <!-- <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <AccountSelectDialog />
-        </div> -->
-      </main>
+  <div class="min-h-screen bg-background">
+    <div class="grid grid-cols-5 grid-rows-5 gap-4 ">
+      <ScrollArea class="h-screen border-r">
+        <div class="p-4 space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="h-6 w-6 bg-primary rounded-sm" />
+            <h2 class="text-lg font-semibold">Store name</h2>
+          </div>
+
+          <nav class="space-y-2">
+            <Button variant="ghost" class="w-full justify-start">
+              <span>Home</span>
+            </Button>
+            <Button variant="ghost" class="w-full justify-start">
+              <span>Live events</span>
+            </Button>
+            <Button variant="ghost" class="w-full justify-start">
+              <span>Attribution</span>
+            </Button>
+          </nav>
+        </div>
+      </ScrollArea>
+      <div class="col-span-3 p-6 space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-bold">Home</h1>
+            <p class="text-muted-foreground">Reconnect your integration</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold">Business Performance Summary</h2>
+            <Button variant="outline">Edit titles</Button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-4">
+            <Card v-for="metric in metrics.businessPerformance" :key="metric.title">
+              <CardHeader>
+                <CardTitle class="text-sm font-medium text-muted-foreground">{{ metric.title }}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="text-2xl font-bold">{{ metric.value }}</div>
+                <p class="text-sm text-green-600">{{ metric.change }}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold">Website Analytics</h2>
+            <Button variant="outline">Edit titles</Button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-4">
+            <Card v-for="metric in metrics.websiteAnalytics" :key="metric.title">
+              <CardHeader>
+                <CardTitle class="text-sm font-medium text-muted-foreground">{{ metric.title }}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="text-2xl font-bold">{{ metric.value }}</div>
+                <p class="text-sm text-green-600">{{ metric.change }}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold">Returning Customers</h2>
+            <Button variant="outline">Edit titles</Button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-4">
+            <Card v-for="metric in metrics.returningCustomers" :key="metric.title">
+              <CardHeader>
+                <CardTitle class="text-sm font-medium text-muted-foreground">{{ metric.title }}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="text-2xl font-bold">{{ metric.value }}</div>
+                <p class="text-sm text-green-600">{{ metric.change }}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+      <div class="col-start-5 col-span-1 p-6">
+        <RangeCalendar v-model="dateRange" class="border rounded-lg" />
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.range-calendar) {
+  --calendar-width: 600px;
+}
+</style>
