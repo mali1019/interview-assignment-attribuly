@@ -4,7 +4,7 @@ import { reactiveOmit } from '@vueuse/core'
 import { RangeCalendarRoot, type RangeCalendarRootEmits, type RangeCalendarRootProps, useForwardPropsEmits } from 'reka-ui'
 import { cn } from '@/lib/utils'
 import { RangeCalendarCell, RangeCalendarCellTrigger, RangeCalendarGrid, RangeCalendarGridBody, RangeCalendarGridHead, RangeCalendarGridRow, RangeCalendarHeadCell, RangeCalendarHeader, RangeCalendarHeading, RangeCalendarNextButton, RangeCalendarPrevButton } from '.'
-
+//parent component se data le sakte ho (props), aur jab user date select kare to parent ko bata sakte ho (emits).
 const props = defineProps<RangeCalendarRootProps & { class?: HTMLAttributes['class'] }>()
 
 const emits = defineEmits<RangeCalendarRootEmits>()
