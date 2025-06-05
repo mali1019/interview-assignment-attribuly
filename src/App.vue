@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref } from 'vue'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './components/ui/card'
 import { RangeCalendar } from './components/ui/range-calendar'
-import { getLocalTimeZone, today } from '@internationalized/date'
+import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date'
 import { ScrollArea } from './components/ui/scroll-area'
 import { Separator } from './components/ui/separator'
 import { Input } from './components/ui/input/index'
 import draggable from 'vuedraggable'
+import MetricCard from './components/MetricCard.vue'
+import MetricSection from './components/MetricSection.vue'
+import SidebarButton from './components/SidebarButton.vue'
+import type { DateRange, DateRangeType, MetricsData } from './types/metrics'
 import {
   Home,
   Activity,
@@ -47,7 +51,9 @@ import {
   Globe,
   Sparkles,
   Bell,
-  X
+  // X,
+  Facebook,
+  Chrome
 } from 'lucide-vue-next'
 
 const tiles = ref([
@@ -65,69 +71,95 @@ const cancel = () => {
   console.log('Cancel clicked')
 }
 
-interface DateRange {
-  start: any;
-  end: any;
+const formatDate = (date: CalendarDate | null) => {
+  if (!date) return ''
+  return date.toString()
 }
 
-const start = today(getLocalTimeZone())
-const end = start.add({ days: 14 })
+const startDate = today(getLocalTimeZone())
+const endDate = startDate.add({ days: 14 })
 
-const dateRange = ref({
-  start,
-  end,
-}) as Ref<DateRange>
+const dateRange = ref<DateRange>({
+  start: startDate,
+  end: endDate,
+})
 
-const dateType = ref('custom')
+const dateType = ref<DateRangeType>('custom')
 
-const metrics = {
+const metrics: MetricsData = {
   businessPerformance: [
-    { title: 'Tracked Revenue', value: '$45,231.89', change: '+12.55%' },
-    { title: 'Mis-reported revenue', value: '$45,231.89', change: '+12.55%' },
-    { title: 'Mis-reported ad spend', value: '$45,231.89', change: '+12.55%' },
-    { title: 'Enriched customer events', value: '573', change: '+12.55%' },
+    { title: 'Tracked Revenue', value: '$45,231.89', change: '+12.55%', icon: LineChart },
+    { title: 'Mis-reported revenue', value: '$45,231.89', change: '+12.55%', icon: Receipt },
+    { title: 'Mis-reported ad spend', value: '$45,231.89', change: '+12.55%', icon: DollarSign },
+    { title: 'Enriched customer events', value: '573', change: '+12.55%', icon: Users },
   ],
   businessMetrics: [
-    { title: 'Total Sales', value: '$45,231.89', change: '+12.55%' },
-    { title: 'Orders', value: '231', change: '+12.55%' },
-    { title: 'Spend', value: '$5,231.89', change: '+12.55%' },
-    { title: 'AOV', value: '$31.89', change: '+12.55%' },
-    { title: 'LTV', value: '$45.89', change: '+20.00%' },
-    { title: 'CPA', value: '$431.89', change: '+20.00%' },
-    { title: 'CVR', value: '11.31%', change: '+12.55%' },
-    { title: 'Blended ROAS', value: '0.14', change: '+12.55%' },
-    { title: 'Facebook ROAS', value: '45.89', change: '+12.55%' },
-    { title: 'Google ROAS', value: '31.89', change: '+12.55%' },
-    { title: 'Net Profit', value: '$431.89', change: '+12.55%' },
-    { title: 'Net Margin', value: '31.89%', change: '+12.55%' },
-    { title: 'Unknown traffic orders', value: '11.31%', change: '+12.55%' },
-    { title: 'Cost of goods sold', value: '$431.89', change: '+12.55%' },
-    { title: 'Overlapping', value: '11.31%', change: '+12.55%' },
+    { title: 'Total Sales', value: '$45,231.89', change: '+12.55%', icon: ShoppingCart },
+    { title: 'Orders', value: '231', change: '+12.55%', icon: Receipt },
+    { title: 'Spend', value: '$5,231.89', change: '+12.55%', icon: DollarSign },
+    { title: 'AOV', value: '$31.89', change: '+12.55%', icon: LineChart },
+    { title: 'LTV', value: '$45.89', change: '+20.00%', icon: LineChart },
+    { title: 'CPA', value: '$431.89', change: '+20.00%', icon: LineChart },
+    { title: 'CVR', value: '11.31%', change: '+12.55%', icon: LineChart },
+    { title: 'Blended ROAS', value: '0.14', change: '+12.55%', icon: LineChart },
+    { title: 'Facebook ROAS', value: '45.89', change: '+12.55%', icon: LineChart },
+    { title: 'Google ROAS', value: '31.89', change: '+12.55%', icon: LineChart },
+    { title: 'Net Profit', value: '$431.89', change: '+12.55%', icon: LineChart },
+    { title: 'Net Margin', value: '31.89%', change: '+12.55%', icon: LineChart },
+    { title: 'Unknown traffic orders', value: '11.31%', change: '+12.55%', icon: LineChart },
+    { title: 'Cost of goods sold', value: '$431.89', change: '+12.55%', icon: LineChart },
+    { title: 'Overlapping', value: '11.31%', change: '+12.55%', icon: LineChart },
   ],
   websiteAnalytics: [
-    { title: 'Visitors', value: '5,231', change: '+12.55%' },
-    { title: 'Ad interaction', value: '231', change: '+12.55%' },
-    { title: 'Email interaction', value: '45', change: '+12.55%' },
-    { title: 'Influencer interaction', value: '73', change: '+12.55%' },
-    { title: 'Social media interaction', value: '131', change: '+12.55%' },
-    { title: 'Organic search interaction', value: '131', change: '+12.55%' },
-    { title: 'Page view', value: '7,245', change: '+12.55%' },
-    { title: 'Add to cart', value: '473', change: '+12.55%' },
-    { title: 'Checkout start', value: '211', change: '+12.55%' },
-    { title: 'Payment info submit', value: '191', change: '+12.55%' },
+    { title: 'Visitors', value: '5,231', change: '+12.55%', icon: Users },
+    { title: 'Ad interaction', value: '231', change: '+12.55%', icon: MousePointerClick },
+    { title: 'Email interaction', value: '45', change: '+12.55%', icon: Mail },
+    { title: 'Influencer interaction', value: '73', change: '+12.55%', icon: UserSquare2 },
+    { title: 'Social media interaction', value: '131', change: '+12.55%', icon: Share2 },
+    { title: 'Organic search interaction', value: '131', change: '+12.55%', icon: Search },
+    { title: 'Page view', value: '7,245', change: '+12.55%', icon: FileText },
+    { title: 'Add to cart', value: '473', change: '+12.55%', icon: ShoppingBasket },
+    { title: 'Checkout start', value: '211', change: '+12.55%', icon: ClipboardCheck },
+    { title: 'Payment info submit', value: '191', change: '+12.55%', icon: CreditCard },
   ],
   returningCustomers: [
-    { title: 'Order from Facebook ads', value: '51', change: '+12.55%' },
-    { title: 'Order value from Facebook ads', value: '$431.89', change: '+12.55%' },
-    { title: 'Order from Google ads', value: '145', change: '+12.55%' },
-    { title: 'Order value from Google ads', value: '$1,434.89', change: '+12.55%' },
-    { title: 'Order from TikTok ads', value: '31', change: '+12.55%' },
-    { title: 'Order value from TikTok ads', value: '$443.89', change: '+12.55%' },
-    { title: 'Order from Bing ads', value: '0', change: '+12.55%' },
-    { title: 'Order value from Bing ads', value: '$0.00', change: '+12.55%' },
+    { title: 'Order from Facebook ads', value: '51', change: '+12.55%', icon: Facebook },
+    { title: 'Order value from Facebook ads', value: '$431.89', change: '+12.55%', icon: Facebook },
+    { title: 'Order from Google ads', value: '145', change: '+12.55%', icon: Chrome },
+    { title: 'Order value from Google ads', value: '$1,434.89', change: '+12.55%', icon: LineChart },
+    { title: 'Order from TikTok ads', value: '31', change: '+12.55%', icon: Video },
+    { title: 'Order value from TikTok ads', value: '$443.89', change: '+12.55%', icon: LineChart },
+    { title: 'Order from Bing ads', value: '0', change: '+12.55%', icon: Globe },
+    { title: 'Order value from Bing ads', value: '$0.00', change: '+12.55%', icon: LineChart },
   ]
 }
 
+const handleEditSection = (section: string) => {
+  console.log('Editing section:', section)
+}
+
+const navigationItems = [
+  { icon: Home, label: 'Home' },
+  { icon: Activity, label: 'Live events' },
+  { icon: Target, label: 'Attribution' },
+  { icon: AdsIcon, label: 'Ads' },
+  { icon: LayoutGrid, label: 'All' },
+  { icon: CreativesIcon, label: 'Creatives' },
+  { icon: GitFork, label: 'Conversion paths' },
+  { icon: BarChart3, label: 'Product analytics' },
+  { icon: Bot, label: 'Ads automation' },
+  { icon: Link, label: 'Link builder' },
+  { icon: FileDown, label: 'Conversion feed' },
+  { icon: Store, label: 'Store' },
+  { icon: Plug2, label: 'Integrations' },
+]
+
+const settingsItems = [
+  { icon: Settings, label: 'Settings' },
+  { icon: HelpCircle, label: 'Help center' },
+  { icon: MessageSquarePlus, label: 'Feature request' },
+  { icon: Share, label: 'Refer us', badge: '30% commission' },
+]
 </script>
 
 <template>
@@ -151,90 +183,32 @@ const metrics = {
           </div>
 
           <nav class="space-y-1">
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Home class="h-4 w-4" />
-              <span>Home</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Activity class="h-4 w-4" />
-              <span>Live events</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Target class="h-4 w-4" />
-              <span>Attribution</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <AdsIcon class="h-4 w-4" />
-              <span>Ads</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <LayoutGrid class="h-4 w-4" />
-              <span>All</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <CreativesIcon class="h-4 w-4" />
-              <span>Creatives</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <GitFork class="h-4 w-4" />
-              <span>Conversion paths</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <BarChart3 class="h-4 w-4" />
-              <span>Product analytics</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Bot class="h-4 w-4" />
-              <span>Ads automation</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Link class="h-4 w-4" />
-              <span>Link builder</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <FileDown class="h-4 w-4" />
-              <span>Conversion feed</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Store class="h-4 w-4" />
-              <span>Store</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Plug2 class="h-4 w-4" />
-              <span>Integrations</span>
-            </Button>
+            <SidebarButton
+              v-for="item in navigationItems"
+              :key="item.label"
+              :icon="item.icon"
+              :label="item.label"
+            />
           </nav>
 
           <Separator />
 
           <nav class="space-y-1">
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Settings class="h-4 w-4" />
-              <span>Settings</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <HelpCircle class="h-4 w-4" />
-              <span>Help center</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <MessageSquarePlus class="h-4 w-4" />
-              <span>Feature request</span>
-            </Button>
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <Share class="h-4 w-4" />
-              <span>Refer us</span>
-              <span class="text-xs text-muted-foreground ml-1">30% commission</span>
-            </Button>
+            <SidebarButton
+              v-for="item in settingsItems"
+              :key="item.label"
+              :icon="item.icon"
+              :label="item.label"
+              :badge="item.badge"
+            />
           </nav>
 
           <div class="pt-4">
-            <Button variant="ghost" class="w-full justify-start gap-2">
-              <User class="h-4 w-4" />
-              <div class="flex flex-col items-start">
-                <span class="text-sm">User Name</span>
-                <span class="text-xs text-muted-foreground">username@site.com</span>
-              </div>
-            </Button>
+            <SidebarButton
+              :icon="User"
+              label="User Name"
+              badge="username@site.com"
+            />
           </div>
         </div>
       </ScrollArea>
@@ -271,118 +245,30 @@ const metrics = {
             <div class="flex justify-between items-center pr-4 pl-4 pt-2">
               <h2 class="text-lg font-semibold">Summary</h2>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-muted-foreground">Jan 20, 2023 - Feb 09, 2023</span>
+                <span class="text-sm text-muted-foreground">
+                  {{ formatDate(dateRange.start) }} - {{ formatDate(dateRange.end) }}
+                </span>
               </div>
             </div>
             <Separator />
 
-            <div class="flex justify-between items-center  pr-4 pl-4 pt-2">
-              <h2 class="text-lg font-semibold">Business Performance Summary</h2>
-              <div class="flex items-center gap-2">
-                <Button variant="outline">Edit titles</Button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-4 gap-4  pr-4 pl-4 pt-2 mb-3">
-              <Card v-for="(metric, index) in metrics.businessPerformance" :key="metric.title" class="relative">
-                <CardHeader>
-                  <div class="card-icon">
-                    <LineChart v-if="index === 0" />
-                    <Receipt v-else-if="index === 1" />
-                    <DollarSign v-else-if="index === 2" />
-                    <Users v-else />
-                  </div>
-                  <CardTitle>{{ metric.title }}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="text-2xl font-bold">{{ metric.value }}</div>
-                  <p class="text-xs font-medium text-green-600">{{ metric.change }}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          <div class="space-y-4  pr-4 pl-4 pt-2">
-            <div class="flex justify-between items-center">
-              <h2 class="text-lg font-semibold">Business Performance Summary</h2>
-              <Button variant="outline">Edit titles</Button>
-            </div>
-
-            <div class="grid grid-cols-4 gap-4">
-              <Card v-for="(metric, index) in metrics.businessMetrics" :key="metric.title" class="relative">
-                <CardHeader>
-                  <div class="card-icon">
-                    <ShoppingCart v-if="metric.title.includes('Sales')" />
-                    <Receipt v-else-if="metric.title.includes('Orders')" />
-                    <DollarSign v-else-if="metric.title.includes('Spend')" />
-                    <LineChart v-else />
-                  </div>
-                  <CardTitle>{{ metric.title }}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="text-2xl font-bold">{{ metric.value }}</div>
-                  <p class="text-xs font-medium text-green-600">{{ metric.change }}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          <div class="space-y-4  pr-4 pl-4 pt-2">
-            <div class="flex justify-between items-center">
-              <h2 class="text-lg font-semibold">Website Analytics</h2>
-              <Button variant="outline">Edit titles</Button>
-            </div>
-
-            <div class="grid grid-cols-4 gap-4">
-              <Card v-for="(metric, index) in metrics.websiteAnalytics" :key="metric.title" class="relative">
-                <CardHeader>
-                  <div class="card-icon">
-                    <Users v-if="metric.title.includes('Visitors')" />
-                    <MousePointerClick v-else-if="metric.title.includes('interaction')" />
-                    <Mail v-else-if="metric.title.includes('Email')" />
-                    <UserSquare2 v-else-if="metric.title.includes('Influencer')" />
-                    <Share2 v-else-if="metric.title.includes('Social')" />
-                    <Search v-else-if="metric.title.includes('search')" />
-                    <FileText v-else-if="metric.title.includes('Page')" />
-                    <ShoppingBasket v-else-if="metric.title.includes('cart')" />
-                    <ClipboardCheck v-else-if="metric.title.includes('Checkout')" />
-                    <CreditCard v-else-if="metric.title.includes('Payment')" />
-                  </div>
-                  <CardTitle>{{ metric.title }}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="text-2xl font-bold">{{ metric.value }}</div>
-                  <p class="text-xs font-medium text-green-600">{{ metric.change }}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          <div class="space-y-4  pr-4 pl-4 pt-2 mb-4">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2">
-                <h2 class="text-lg font-semibold">Returning Customers</h2>
-              </div>
-              <Button variant="outline">Edit titles</Button>
-            </div>
-
-            <div class="grid grid-cols-4 gap-4">
-              <Card v-for="(metric, index) in metrics.returningCustomers" :key="metric.title" class="relative">
-                <CardHeader>
-                  <div class="card-icon">
-                    <Facebook v-if="metric.title.includes('Facebook')" />
-                    <Chrome v-else-if="metric.title.includes('Google')" />
-                    <Video v-else-if="metric.title.includes('TikTok')" />
-                    <Globe v-else-if="metric.title.includes('Bing')" />
-                  </div>
-                  <CardTitle>{{ metric.title }}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div class="text-2xl font-bold">{{ metric.value }}</div>
-                  <p class="text-xs font-medium text-green-600">{{ metric.change }}</p>
-                </CardContent>
-              </Card>
+            <div class="px-4">
+              <MetricSection
+                v-for="(section, key) in metrics"
+                :key="key"
+                :title="key"
+                :custom-title="key === 'returningCustomers' ? 'Returning Customers' : undefined"
+                @edit="handleEditSection(key)"
+              >
+                <MetricCard
+                  v-for="metric in section"
+                  :key="metric.title"
+                  v-bind="metric"
+                />
+              </MetricSection>
             </div>
           </div>
         </div>
-
       </div>
       <div class="col-span-4 p-6 space-y-6 bg-muted/50">
 
@@ -390,50 +276,30 @@ const metrics = {
           <div class="p-4 space-y-4">
             <div class="flex justify-between items-center">
               <h3 class="text-sm font-medium">Pick a date</h3>
-              <Select v-model="dateType">
-                <SelectTrigger class="w-24 h-8 text-sm border-0 bg-transparent">
-                  <SelectValue placeholder="Custom" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="custom">Custom</SelectItem>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="yesterday">Yesterday</SelectItem>
-                  <SelectItem value="last7days">Last 7 days</SelectItem>
-                </SelectContent>
-              </Select>
+              <select v-model="dateType" class="text-sm border-0 bg-transparent">
+                <option value="custom">Custom</option>
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last7days">Last 7 days</option>
+              </select>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="text-sm text-muted-foreground">Starting</label>
                 <div class="mt-1">
-                  <Input v-model="dateRange.start" readonly class="bg-transparent" />
+                  <Input :model-value="formatDate(dateRange.start)" readonly class="bg-transparent" />
                 </div>
               </div>
               <div>
                 <label class="text-sm text-muted-foreground">Ending</label>
                 <div class="mt-1">
-                  <Input v-model="dateRange.end" readonly class="bg-transparent" />
+                  <Input :model-value="formatDate(dateRange.end)" readonly class="bg-transparent" />
                 </div>
               </div>
             </div>
 
             <div class="border rounded-lg p-4">
-              <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" class="h-6 w-6">
-                    <ChevronLeft class="h-4 w-4" />
-                  </Button>
-                  <span class="text-sm">Feb 2025</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm">Mar 2025</span>
-                  <Button variant="ghost" size="icon" class="h-6 w-6">
-                    <ChevronRight class="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
               <RangeCalendar v-model="dateRange" class="border-0" :numberOfMonths="2" mode="range" />
             </div>
 
@@ -454,7 +320,7 @@ const metrics = {
               <div class="space-y-3">
                 <draggable v-model="tiles" item-key="id" class="space-y-2">
                   <template #item="{ element }">
-                    <div class="bg-white  p-2 flex items-center justify-between">
+                    <div class="bg-white p-2 flex items-center justify-between">
                       <span>{{ element.name }}</span>
                       <GripVertical class="text-muted-foreground w-4 h-4" />
                     </div>
@@ -481,8 +347,7 @@ const metrics = {
                 <CircleAlert class="w-4 h-4 mt-1" />
                 <p>
                   Only accounts for which you have admin access are shown here, and you need to have editing permissions
-                  for the
-                  account to use auto tracking.
+                  for the account to use auto tracking.
                 </p>
               </div>
 
